@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-14]
         compiler: [gcc, clang]
@@ -100,3 +101,9 @@ jobs:
     - name: Build aria2
       run: |
         make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)" check
+    - name: Upload test-suite.log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-suite-log-${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.crypto }}-${{ matrix.bittorrent }}
+        path: test/test-suite.log
